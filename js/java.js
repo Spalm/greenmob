@@ -12,95 +12,32 @@ var geocoder = new google.maps.Geocoder();
 var address_search_city;
 
 
-/*function defaultmarker() {
-    if(navigator.geolocation) {// if have coords of location then mapServiceProvider, else func ErrLocation
-        position=navigator.geolocation.getCurrentPosition(function(position) {
-            mapServiceProvider (position.coords.latitude,position.coords.longitude);
-        }, ErrLocation);
-    }
-
-}
-function mapServiceProvider (latitude,longitude){
-    mapThisGoogle(latitude,longitude);// �������� ����� �����
-}
-function mapThisGoogle(latitude,longitude){
-    var myLatlng = new google.maps.LatLng(latitude,longitude);
-    var mapOptions = {
-        center: new google.maps.LatLng(latitude,longitude),
-        zoom: 11,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-    var map = new google.maps.Map(document.getElementById("map"),
-        mapOptions);
-    console.log("I drink here every day!");
-    var marker = new google.maps.Marker({
-        position: myLatlng,
-        map: map,
-        title:"I drink here every day!"
-    });
-}
- */
-function ErrLocation(err) {
-// var foo = document.getElementById('foo');
-// foo.innerHTML = '<p>���������, �������� �����</p></br><select><option> ������ </option> </select>';
-// ����� ������ ������ ���-���� ������!!!!!!!!!!!!!!!!!!!!!
-    if (err.code == 1) {
-        message="�� ��������� ������ � ����� �����������";
-    }
-    if (err.code == 2) {
-        message="��� ����� �� ���������";
-    }
-    if (err.code == 3) {
-        message="�������� ����-��� ����������";
-    }
-    if (err.code == 0) {
-        message="���-�� ����� �� ���";
-    }
-
-    $("#message_location").addClass("alert alert-error");
-    $("#message_location").html(message+" ,����������, �������� ����� �� ������");
-}
-
-
+var lat;
 $(document).ready(function()
 {
-
-    /// ************ CMS
+/// ************ CMS
 
     $.ajax({
         url:"ajax_cms.php?cms_id=1",
         success:function(cms_content)
         {
             $("#map_legend").html(cms_content);
-
-
-            // ************ CITY FROM REQUEST
-            var cityname = document.referrer.toString();
-            console.log(cityname);
-            cityname = cityname.substring(cityname.lastIndexOf("?") + 1);
-            var dropdown = document.getElementById('city_dropdown');
-            if (cityname == 'spb')	dropdown.options.selectedIndex = '1';
-            else if (cityname == 'obninsk')	dropdown.options.selectedIndex = '2';
-            else if (cityname == 'omsk')	dropdown.options.selectedIndex = '3';
-            else if (cityname == 'novokuznetsk')	dropdown.options.selectedIndex = '4';
-            else if (cityname == 'murmansk')	dropdown.options.selectedIndex = '5';
-            else if (cityname == 'kaliningrad')	dropdown.options.selectedIndex = '6';
-            else if (cityname == 'tomsk')	dropdown.options.selectedIndex = '7';
-            else if (cityname == 'vladivostok')	dropdown.options.selectedIndex = '8';
-            else if (cityname == 'novosibirsk')	dropdown.options.selectedIndex = '9';
-            else if (cityname == 'habarovsk')	dropdown.options.selectedIndex = '10';
-            else if (cityname == 'krasnodar')	dropdown.options.selectedIndex = '11';
-            else if (cityname == 'ivanovo')	dropdown.options.selectedIndex = '12';
-            else if (cityname == 'voronezh')	dropdown.options.selectedIndex = '13';
-            else if (cityname == 'rostov')	dropdown.options.selectedIndex = '14';
-            else if (cityname == 'barnaul')	dropdown.options.selectedIndex = '15';
-            else if (cityname == 'nnovgorod')	dropdown.options.selectedIndex = '16';
             change_city();
         }
-    });
+});
 
-    /// ************ CATEGORIES LIST
-
+// ********************************** CATEGORIES LIST***************************************************************
+/*Hide icon start*/
+function hideIcon(selection) {
+    keys=new Array(1,2,3,4,5,6,7,8);
+    keys.splice(selection-1,1);
+    for (i=0;i<keys.length;i++){
+        selection=keys[i];
+        console.log(i+"ii element --- iii kluch"+keys[i]);
+        $("#icon_cat_" + selection).toggleClass("die");
+    }
+}
+/*Hide icon end*/
     $(".icon.active").hover(
         // in
         function()
@@ -122,82 +59,18 @@ $(document).ready(function()
     $(".icon").click(
         function()
         {
-
-            keys=new Array(1,2,3,4,5,6,7,8);
-
-            // visual
-            var selection = $(this).attr("id").substr($(this).attr("id").length-1);//1
-            console.log("Do splise"+keys);
-            keys.splice(selection-1,1);
-            console.log("After splise"+keys);
-
-            for (i=0;i<keys.length;i++){
-                selection=keys[i];
-                console.log(i+"ii element --- iii kluch"+keys[i]);
-                $("#icon_cat_" + selection).toggleClass("die");
-            }
-            keys=Array(1,2,3,4,5,6,7);
-
-    var selection = $(this).attr("id").substr($(this).attr("id").length-1);
+        var selection = $(this).attr("id").substr($(this).attr("id").length-1);
+        hideIcon(selection);
             $("#icon_cat_" + selection).toggleClass("active");
             $("#filter_cat_" + selection).toggleClass("active");
             $("#filter_cat_" + selection).toggleClass("selected");
             // markers
+           // marker_location_position(lat,lng);
             markers_update_list(city_id);
 
             return false;
         }
     );
-
-
-    /// ************ ADDRESS
-
-    $("#address_input").autocomplete(
-        {
-            source: function(request, response)
-            {
-                geocoder.geocode( {'address': address_search_city + " " + request.term}, function(results, status)
-                {
-                    var results_formatted = [];
-                    for (var i = 0; i < results.length; i++)
-                    {
-                        var single_result = [];
-
-                        single_result['label'] = results[i].formatted_address;
-                        single_result['value'] = results[i].formatted_address;
-                        single_result['lat'] = results[i].geometry.location.lat();
-                        single_result['lng'] = results[i].geometry.location.lng();
-
-                        results_formatted.push(single_result);
-                    }
-                    response (results_formatted);
-                })
-            },
-
-            select: function(event, ui)
-            {
-                var location = new google.maps.LatLng(ui.item.lat, ui.item.lng);
-
-                global_map.setCenter(location);
-
-                if (search_marker)
-                {
-                    search_marker.setPosition(location);
-                }
-                else
-                {
-                    search_marker = new google.maps.Marker(
-                        {
-                            position: location,
-                            map: global_map,
-                            title: "��������� ������"
-                        });
-                }
-            },
-
-            minLength: 4
-
-        }); // autocomplete
 
     /// ************ MAP
 
@@ -262,47 +135,81 @@ $(document).ready(function()
     $("#city_dropdown").change(change_city);
 
 }); // document.ready
+////=============================GEOLOCATION enable HTML5  more http://www.w3.org/TR/geolocation-API/======================================================
+function GeoSuccess(position){
+    geoloc={};
+    geoloc.lat=parseFloat(position.coords.latitude);
+    geoloc.lng=parseFloat(position.coords.longitude);
+    geoloc.metka=1;
+change_city(geoloc);
 
-function change_city() {
-//���� ���� ����������
+}
+
+function ErrLocation(err) {
+    $("#message_location").addClass("alert alert-error");
+    $("#message_location").html(err.message+" ,пожалуйста, выберите город из списка");
+}
+function FindGeoLocation(){
+
+    var options = {
+        enableHighAccuracy: true,//Use GPS chip
+        timeout: 50000
+    };
+
+    navigator.geolocation.getCurrentPosition(GeoSuccess, ErrLocation, options)
+
+
+}
+//===================================END GEOLOCATION============================================================
+function change_city(geoloc) {
+    var geoloc=geoloc;
+    console.log("---"+typeof (geoloc));
+//если есть геолокация
+
     if((navigator.geolocation)&&($("#city_dropdown option:selected").val()==0)) {
-        position=navigator.geolocation.getCurrentPosition(function(position) {
-        $.getJSON(// �������� ����� ������������ �� �����������
-                "http://maps.googleapis.com/maps/api/geocode/json?latlng="+position.coords.latitude+","+position.coords.longitude+"&language=en&sensor=true",
-                 function(data){
+        if (typeof(geoloc) === "undefined") {
+            console.log("===="+typeof(geoloc));
+    FindGeoLocation();
+    }
+
+        console.log(geoloc);
+        console.log(geoloc.lat);
+
+        $.getJSON(
+            "http://maps.googleapis.com/maps/api/geocode/json?latlng="+geoloc.lat+","+geoloc.lng+"&language=en&sensor=true",
+            function(data){
                 your_city=data.results[0].address_components[2].short_name;
-                     console.log("your_city---------->"+your_city);
-                    //� ����������� �� ������ ������ id
-    if (your_city == 'Moscow')	city_id = 1;
-    else if (your_city == 'SPB')	city_id = 2;
-    else if (your_city == 'obninsk')	city_id = 3;
-    else if (your_city == 'omsk')	city_id = 4;
-    else if (your_city == 'novokuznetsk')	city_id = 5;
-    else if (your_city == 'murmansk')	city_id = 6;
-    else if (your_city == 'kaliningrad')	city_id = 7;
-    else if (your_city == 'tomsk')	city_id = 8;
-    else if (your_city == 'vladivostok')	city_id = 9;
-    else if (your_city == 'novosibirsk')	city_id = 10;
-    else if (your_city == 'habarovsk')	city_id = 11;
-    else if (your_city == 'krasnodar')	city_id = 12;
-    else if (your_city == 'ivanovo')	city_id = 13;
-    else if (your_city == 'voronezh')	city_id = 14;
-    else if (your_city == 'rostov')	city_id = 15;
-    else if (your_city == 'barnaul')	city_id = 16;
-    else if (your_city == 'novgorod')	city_id = 17;
-    else city_id=2;
-                     $("#map_wrapper").addClass("map_wrapper_show");
-                     $("#message_location").addClass("alert alert-success");
-                     $("#message_location").html("���� ���������� �� �����, ��� ������ � ������");
-                prepare_city(city_id,14,position.coords.latitude,position.coords.longitude);
+console.log(data);
+
+
+                if (your_city == 'Moscow')	city_id = 1;
+                else if (your_city == 'SPB')	city_id = 2;
+                else if (your_city == 'obninsk')	city_id = 3;
+                else if (your_city == 'omsk')	city_id = 4;
+                else if (your_city == 'novokuznetsk')	city_id = 5;
+                else if (your_city == 'murmansk')	city_id = 6;
+                else if (your_city == 'kaliningrad')	city_id = 7;
+                else if (your_city == 'tomsk')	city_id = 8;
+                else if (your_city == 'vladivostok')	city_id = 9;
+                else if (your_city == 'novosibirsk')	city_id = 10;
+                else if (your_city == 'habarovsk')	city_id = 11;
+                else if (your_city == 'krasnodar')	city_id = 12;
+                else if (your_city == 'ivanovo')	city_id = 13;
+                else if (your_city == 'voronezh')	city_id = 14;
+                else if (your_city == 'rostov')	city_id = 15;
+                else if (your_city == 'barnaul')	city_id = 16;
+                else if (your_city == 'novgorod')	city_id = 17;
+                $("#map_wrapper").addClass("map_wrapper_show");
+                $("#message_location").addClass("alert alert-success");
+                $("#message_location").html("Ваши координаты мы нашли, щас придем с битами");
+
+                prepare_city(city_id,14,geoloc.lat,geoloc.lng);
 
             });
-            //���� ���������� �� ��������, ������������ ������
-        }, ErrLocation);
     }
 
     if (($("#city_dropdown option:selected").val())!=0){ $("#map_wrapper").addClass("map_wrapper_show");}
-//���� ���������� �� �������� �������� �� ������(��������� � ��������� ������)
+//если геолокация не работает выбираем из списка(перенести в обработку ошибок)
         prepare_city($("#city_dropdown option:selected").val());
 
         city_id = $("#city_dropdown option:selected").val();
@@ -329,6 +236,7 @@ function prepare_city(city_id,nav_loc_zoom,lat,lng)
 
             global_map = InitMap( parseFloat(city_info.city_lat), parseFloat(city_info.city_lng), parseInt(city_info.city_zoom) );
 
+
             markers_update_list(city_id);
 
         }
@@ -349,6 +257,20 @@ function InitMap(init_lat, init_lng, init_zoom)
 
 }
 
+function marker_location_position(lat,lng){
+
+    var myLatlng = new google.maps.LatLng(parseFloat(lat),parseFloat(lng));
+    console.log(lat);
+    console.log(lng);
+    var marker1 = new google.maps.Marker(
+        {
+            position: myLatlng,
+            map: global_map,
+            title: "I drink here every day!"
+        });
+
+
+}
 function markers_update_list(city_id)
 {
 
@@ -463,10 +385,10 @@ function show_map_popup(org_info, marker)
 
     if (org_info.comments_count)
     {
-        popup_content += "<div class='popup_org_comments_count'>" + org_info.comments_count + " �������</div>";
+        popup_content += "<div class='popup_org_comments_count'>" + org_info.comments_count + " отзывов</div>";
     }
 
-    popup_content += "<div class='popup_org_comments_count'>������ �������� ��� ������</div>";
+    popup_content += "<div class='popup_org_comments_count'>Полное описание под картой</div>";
 
     infowindow.setContent( popup_content );
     infowindow.open(global_map, marker);
@@ -601,7 +523,7 @@ function add_comment()
 
     if (!$("#add_comment_email").val() || !$("#add_comment_name").val() || !$("#add_comment_comment").val() )
     {
-        $("#comments_alert").html("����������, ��������� ��� ���� �����!");
+        $("#comments_alert").html("Пожалуйста, заполните все поля формы!");
         $("#comments_alert").slideDown('slow');
     }
     else
@@ -650,7 +572,7 @@ function add_point()
             success: function(data)
             {
 
-                if ( data == "�������, ���� ���������� ����������.")
+                if ( data == "Спасибо, ваша информация отправлена.")
                 {
                     $("#point_alert").addClass("positive");
                     $("#add_point_title").val("");
