@@ -136,15 +136,17 @@ function hideIcon(selection) {
 
 }); // document.ready
 ////=============================GEOLOCATION enable HTML5  more http://www.w3.org/TR/geolocation-API/======================================================
-function GeoSuccess(position){
+var r,k;
+var t=function(position,r,k){
     geoloc={};
-    geoloc.lat=parseFloat(position.coords.latitude);
-    geoloc.lng=parseFloat(position.coords.longitude);
+    r=geoloc.lat=parseFloat(position.coords.latitude);
+    k=geoloc.lng=parseFloat(position.coords.longitude);
     geoloc.metka=1;
 change_city(geoloc);
+    return k;
 
 }
-
+console.log("r   i   k  ="+r+""+k+"t="+ t);
 function ErrLocation(err) {
     $("#message_location").addClass("alert alert-error");
     $("#message_location").html(err.message+" ,пожалуйста, выберите город из списка");
@@ -156,7 +158,7 @@ function FindGeoLocation(){
         timeout: 50000
     };
 
-    navigator.geolocation.getCurrentPosition(GeoSuccess, ErrLocation, options)
+    navigator.geolocation.getCurrentPosition(t, ErrLocation, options)
 
 
 }
@@ -182,6 +184,7 @@ function change_city(geoloc) {
 console.log(data);
 
 
+
                 if (your_city == 'Moscow')	city_id = 1;
                 else if (your_city == 'SPB')	city_id = 2;
                 else if (your_city == 'obninsk')	city_id = 3;
@@ -202,7 +205,7 @@ console.log(data);
                 $("#map_wrapper").addClass("map_wrapper_show");
                 $("#message_location").addClass("alert alert-success");
                 $("#message_location").html("Ваши координаты мы нашли, щас придем с битами");
-
+           // console.log("city"+city_id+"lat"+geoloc.lat+"lng"+geoloc.lng);
                 prepare_city(city_id,14,geoloc.lat,geoloc.lng);
 
             });
