@@ -65,7 +65,7 @@ function hideIcon(selection) {
             $("#filter_cat_" + selection).toggleClass("active");
             $("#filter_cat_" + selection).toggleClass("selected");
             // markers
-           // marker_location_position(lat,lng);
+            marker_location_position(window.lat_s,window.lng_s);
             markers_update_list(city_id);
 
             return false;
@@ -137,23 +137,14 @@ function hideIcon(selection) {
 }); // document.ready
 ////=============================GEOLOCATION enable HTML5  more http://www.w3.org/TR/geolocation-API/======================================================
 
-function GeoSuccess(position,r,k){
-    geoloc={};
+function GeoSuccess(position){
     window.lat_s=parseFloat(position.coords.latitude);
     window.lng_s=parseFloat(position.coords.longitude);
-    geoloc.metka=1;
-window.geo=geoloc;
-    console.log("SuccessGEO");
-
-
 }
-
-
     function ErrLocation(err) {
     $("#message_location").addClass("alert alert-error");
     $("#message_location").html(err.message+" ,пожалуйста, выберите город из списка");
 }
-
 function FindGeoLocation(){
 
     var options = {
@@ -170,10 +161,13 @@ function change_city() {
 
 //если есть геолокация
 
-    if((navigator.geolocation) ){//&&($("#city_dropdown option:selected").val()==0)) {
+    if((navigator.geolocation) &&($("#city_dropdown option:selected").val()==0)) {
        // if (typeof(geoloc) === "undefined") {
        //     console.log("===="+typeof(geoloc));
+        console.log("result="+window.result);
 FindGeoLocation();
+        if(window.result="start"){
+            console.log("result="+window.result);
   //  }
         setTimeout (function(){console.log("geo="+window.geo);},1000);
         setTimeout (function(){console.log("geo="+window.lat_s);},1000);
@@ -185,6 +179,7 @@ FindGeoLocation();
             "http://maps.googleapis.com/maps/api/geocode/json?latlng="+window.lat_s+","+window.lng_s+"&language=en&sensor=true",
             function(data){
                 your_city=data.results[0].address_components[2].short_name;
+                console.log(your_city);
 console.log(data);
 
 
@@ -210,14 +205,16 @@ console.log(data);
                 $("#message_location").addClass("alert alert-success");
                 $("#message_location").html("Ваши координаты мы нашли, щас придем с битами");
            // console.log("city"+city_id+"lat"+geoloc.lat+"lng"+geoloc.lng);
-                prepare_city(city_id,14,geoloc.lat,geoloc.lng);
+                prepare_city(city_id,14,window.lat_s,window.lng_s);
+
+
 
             });
-            ;},1000);
+            ;},5000);
 
 
 
-    }
+    }}
 
 
     if (($("#city_dropdown option:selected").val())!=0){ $("#map_wrapper").addClass("map_wrapper_show");}
@@ -229,6 +226,7 @@ console.log(data);
     $("#add_point").show();
     $("#org_card").hide();
     $("#org_comments").hide();
+
 }
 
 /// ************ MAP
@@ -250,6 +248,7 @@ function prepare_city(city_id,nav_loc_zoom,lat,lng)
 
 
             markers_update_list(city_id);
+
 
         }
     );
