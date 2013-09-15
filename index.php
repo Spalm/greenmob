@@ -19,11 +19,18 @@
     <script src="lib/fancybox/jquery.fancybox-1.3.4.pack.js" type="text/javascript"></script>
     <script src="js/java.js" type="text/javascript"></script>
 
+    <script src="js/JQ.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui..">
+    <script src="http://code.jquery.com/jquery-1.8.3.js"></script>
+    <link rel="stylesheet" href="js/chosen/chosen.css">
+    <script src="js/chosen/chosen.jquery.js"></script>
+    <script src="js/chosen/chosen.jquery.js"></script>
+
+
     <?php
     include('db_config.php');
     $sql = "SELECT id,title FROM rm_city";
     $cities = mysql_query($sql);
-
     ?>
 
 
@@ -34,19 +41,29 @@
 <header>
  <!-- Logo-->
 <div id="logo_wrap">
-    <img src="img/logo.png" alt="Вторая жизнь вещей" />
+    <img src="img/logo.png" alt="Р’С‚РѕСЂР°СЏ Р¶РёР·РЅСЊ РІРµС‰РµР№" />
 </div>
 <!-- Message about geolocation (hidden)-->
 <div id="message_location"></div>
 <!-- Change city -->
 <div id="city_selector">
-    Вы смотрите карту пунктов для:&nbsp;&nbsp;
-    <select id="city_dropdown"> <option value="0">Выберите город</option>
+    Р’С‹ СЃРјРѕС‚СЂРёС‚Рµ РєР°СЂС‚Сѓ РїСѓРЅРєС‚РѕРІ РґР»СЏ:&nbsp;&nbsp;
+
+
+    <script type="text/javascript">
+        $(function(){
+            $(".chosen-single").chosen();
+        });
+    </script>
+
+    <select id="city_dropdown" class="chosen-single"  name="faculty" style="width:200px;">
+        <option value="0">Р’С‹Р±РµСЂРёС‚Рµ РіРѕСЂРѕРґ</option>
         <?php while ($city = mysql_fetch_array($cities)) : ?>
 
             <option value="<?php echo $city['id'] ?>" ><?php echo $city['title']?></option>
         <?php endwhile; ?>
     </select>
+
 </div>
 <!-- Filters-->
 <div id="filters_list">
@@ -99,7 +116,7 @@
             <div id="org_info">
                 <b><span id="org_title"></span></b><br/>
                 <br/>
-                <label id="rating_label">Оцените пункт:	</label>
+                <label id="rating_label">РћС†РµРЅРёС‚Рµ РїСѓРЅРєС‚:	</label>
                 <div id="rating_widget">
                     <div id="star_1" class="rating_stars"></div>
                     <div id="star_2" class="rating_stars"></div>
@@ -108,24 +125,24 @@
                     <div id="star_5" class="rating_stars"></div>
                 </div><br/>
 
-                <label>Принимают: 		</label><span id="org_fractions"></span><br/>
-                <label>Время работы: 	</label><span id="org_info_time"></span><br/>
-                <label>Адрес/телефон: 	</label><span id="org_info_contacts"></span><br/>
-                <label>Дополнительно: 	</label><span id="org_info_misc"></span><br/>
+                <label>РџСЂРёРЅРёРјР°СЋС‚: 		</label><span id="org_fractions"></span><br/>
+                <label>Р’СЂРµРјСЏ СЂР°Р±РѕС‚С‹: 	</label><span id="org_info_time"></span><br/>
+                <label>РђРґСЂРµСЃ/С‚РµР»РµС„РѕРЅ: 	</label><span id="org_info_contacts"></span><br/>
+                <label>Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕ: 	</label><span id="org_info_misc"></span><br/>
 
             </div>
 
         </div>
 
         <div id="org_comments" style="display:none;">
-            <h2>Добавить комментарий</h2>
+            <h2>Р”РѕР±Р°РІРёС‚СЊ РєРѕРјРјРµРЅС‚Р°СЂРёР№</h2>
             <form id="add_comment_form" >
-                <label for="add_comment_name">Имя:</label>					<input type="text" id="add_comment_name" /><br/>
+                <label for="add_comment_name">РРјСЏ:</label>					<input type="text" id="add_comment_name" /><br/>
                 <label for="add_comment_email">E-mail:</label>			<input type="text" id="add_comment_email" /><br/>
-                <label for="add_comment_comment">Текст комментария:</label>	<textarea id="add_comment_comment" ></textarea><br/>
-                <label for="add_comment_subscribe">Я хочу получать информацию от Гринпис:</label>	<input type="checkbox" value="yes" id="add_comment_subscribe" name="add_comment_subscribe" /><br/>
+                <label for="add_comment_comment">РўРµРєСЃС‚ РєРѕРјРјРµРЅС‚Р°СЂРёСЏ:</label>	<textarea id="add_comment_comment" ></textarea><br/>
+                <label for="add_comment_subscribe">РЇ С…РѕС‡Сѓ РїРѕР»СѓС‡Р°С‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ РѕС‚ Р“СЂРёРЅРїРёСЃ:</label>	<input type="checkbox" value="yes" id="add_comment_subscribe" name="add_comment_subscribe" /><br/>
                 <input type="hidden" name="org_id" id="add_comment_hidden" />
-                <input type="button" id="add_comment_submit" value="Добавить комментарий" />
+                <input type="button" id="add_comment_submit" value="Р”РѕР±Р°РІРёС‚СЊ РєРѕРјРјРµРЅС‚Р°СЂРёР№" />
             </form>
 
             <div id="comments_alert" style="display: none;">
